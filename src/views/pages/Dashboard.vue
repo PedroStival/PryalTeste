@@ -4,7 +4,7 @@
       <ClientesList :clientes="clientes" />
     </div>
     <div className="col-lg-6">
-      oi oiii
+      TESTANDO
     </div>
   </div>
 </template>
