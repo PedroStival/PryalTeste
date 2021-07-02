@@ -6,16 +6,16 @@ const config: LayoutConfigTypes = {
   demo: "demo1",
   main: {
     type: "default",
-    primaryColor: "#009EF7",
+    primaryColor: "#EF1E24",
     logo: {
       dark: "media/logos/logo-1.svg",
-      light: "media/logos/logo-1-dark.svg"
+      light: "media/logos/Pryal Horizontal.png"
     }
   },
   loader: {
-    logo: "media/logos/logo-1-dark.svg",
+    logo: "media/logos/Pryal P.png",
     display: true,
-    type: "default"
+    type: "spinner-logo"
   },
   scrollTop: {
     display: true

@@ -103,10 +103,6 @@ export default defineComponent({
 
     onMounted(() => {
       // // check if current user is authenticated
-      console.log(
-        "store.getters.isAuthenticated",
-        store.getters.isAuthenticated
-      );
       if (store.getters.isAuthenticated) {
         router.push({ name: "sign-in" });
       }
