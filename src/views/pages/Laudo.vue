@@ -103,7 +103,7 @@ export default defineComponent({
 
     function getNumeroRespostasPorLocalizacao(localizacao) {
       return resultado.value.filter(function(item) {
-        return item.localizacao === localizacao.replace(" ", "");
+        return item.localizacao === localizacao;
       }).length;
     }
 
