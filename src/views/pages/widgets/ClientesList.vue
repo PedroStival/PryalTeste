@@ -13,13 +13,13 @@
       </div>
       <div
         className="card-body pt-2"
-        v-for="cliente in clientes"
-        :key="cliente.id"
+        v-for="c in clientes"
+        :key="c.id"
       >
         <div className="d-flex flex-wrap align-items-center">
           <div className="d-flex flex-column flex-grow-1 my-lg-0 my-2 pr-3">
-            <span class="fs-3">Cliente: {{ cliente.nome }}</span>
-            <template v-for="veiculo in cliente.veiculos" :key="veiculo.id">
+            <a href="#pryal_cliente_cadastro" @click="setCliente(c)" data-bs-toggle="modal"><span class="fs-3">Cliente: {{ c.nome }}</span></a>
+            <template v-for="veiculo in c.veiculos" :key="veiculo.id">
               <span
                 className="d-flex align-items-center justify-content-between text-muted mb-3"
               >
@@ -29,7 +29,7 @@
                 </span>
                 <button
                   class="btn btn-sm btn-light-primary"
-                  @click="criarLaudo(veiculo.id)"
+                  @click="criarLaudo(c, veiculo)"
                 >
                   <i class="bi bi-card-checklist"></i>Criar laudo
                 </button>
@@ -40,11 +40,12 @@
       </div>
     </div>
   </div>
-  <ClienteCadastro />
+
+  <ClienteCadastro :cliente="cliente" />
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+import { defineComponent, ref } from "vue";
 import ApiService from "@/core/services/ApiService";
 import { useRouter } from "vue-router";
 import ClienteCadastro from "@/views/pages/widgets/ClienteCadastro.vue";
@@ -57,17 +58,22 @@ export default defineComponent({
   },
   setup() {
     const router = useRouter();
-    function criarLaudo(veiculoId) {
-      ApiService.post("/analise/cadastrar?veiculoId=" + veiculoId, {}).then(
-        ({ data }) => {
-          router.push({ name: "Cadastrar-laudo", params: { analiseId: data } });
-        }
-      );
+    const cliente = ref({nome: ""});
+    function setCliente(cli) {
+      console.log('cli', cli)
+      cliente.value = cli;
+      //console.log(cliente.value)
+    }
+
+    function criarLaudo(cliente, veiculo) {
+      router.push({ name: "Cadastrar-laudo", query: { nome: cliente.nome, marca: veiculo.marca, modelo: veiculo.modelo, veiculoId: veiculo.id} });
     }
 
     return {
       ClienteCadastro,
-      criarLaudo
+      criarLaudo,
+      setCliente,
+      cliente
     };
   }
 });

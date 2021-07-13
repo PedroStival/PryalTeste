@@ -14,7 +14,7 @@ const routes: Array<RouteRecordRaw> = [
         component: () => import("@/views/pages/Dashboard.vue")
       },
       {
-        path: "/cadastrar-laudo/:analiseId",
+        path: "/cadastrar-laudo/:analiseId?",
         name: "Cadastrar-laudo",
         component: () => import("@/views/pages/Laudo.vue")
       }

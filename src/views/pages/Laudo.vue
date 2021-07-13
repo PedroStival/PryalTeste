@@ -21,7 +21,7 @@
             <h2 class="accordion-header" id="headingOne">
               <button
                 :ref="
-                  el => {
+                  (el) => {
                     accordions.push(el);
                   }
                 "
@@ -30,7 +30,7 @@
                   'bg-success':
                     getNumeroRespostasPorLocalizacao(
                       localizacao.localizacao
-                    ) === localizacao.items.length
+                    ) === localizacao.items.length,
                 }"
                 type="button"
                 data-bs-toggle="collapse"
@@ -58,7 +58,7 @@
                   @click="enviarRespostas(localizacao, indexPergunta)"
                   :disabled="
                     localizacao.items.length >
-                      getNumeroRespostasPorLocalizacao(localizacao.localizacao)
+                    getNumeroRespostasPorLocalizacao(localizacao.localizacao)
                   "
                   class="
                     btn btn-success
@@ -98,7 +98,8 @@ export default defineComponent({
     const route = useRouter();
     const accordions = ref<any>([]);
 
-    const analiseId = route.currentRoute.value.params.analiseId;
+    let analiseId = route.currentRoute.value.params.analiseId;
+    let veiculoId = route.currentRoute.value.query.veiculoId;
     //var res = arr1.map(obj => arr2.find(o => o.id === obj.id) || obj);
 
     function getNumeroRespostasPorLocalizacao(localizacao) {
@@ -107,7 +108,17 @@ export default defineComponent({
       }).length;
     }
 
-    function enviarRespostas(loc, index) {
+    async function enviarRespostas(loc, index) {
+      if (veiculoId) {
+        await ApiService.post(
+          "/analise/cadastrar?veiculoId=" + veiculoId,
+          {}
+        ).then(({ data }) => {
+          analiseId = data;
+          veiculoId = null;
+        });
+      }
+
       const respostas = resultado.value.filter(function(item) {
         return item.localizacao === loc.localizacao.replace(" ", "");
       });
@@ -125,8 +136,8 @@ export default defineComponent({
             buttonsStyling: false,
             confirmButtonText: "Ok, proximo!",
             customClass: {
-              confirmButton: "btn fw-bold btn-light-primary"
-            }
+              confirmButton: "btn fw-bold btn-light-primary",
+            },
           }).then(() => {
             if (index + 1 === perguntas.value.length) {
               route.push({ name: "Dashboard" });
@@ -146,8 +157,8 @@ export default defineComponent({
             buttonsStyling: false,
             confirmButtonText: "Ok :()",
             customClass: {
-              confirmButton: "btn fw-bold btn-light-danger"
-            }
+              confirmButton: "btn fw-bold btn-light-danger",
+            },
           });
         });
     }
@@ -158,9 +169,7 @@ export default defineComponent({
 
     onMounted(() => {
       emitter.on("atualizarResposta", function(resposta) {
-        const index = resultado.value.findIndex(
-          resp => resp.itemId === resposta.itemId
-        );
+        const index = resultado.value.findIndex((resp) => resp.itemId === resposta.itemId);
         if (index > -1) {
           resultado.value[index] = resposta;
         } else {
@@ -169,41 +178,52 @@ export default defineComponent({
       });
 
       saveToken(
-        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6IlBlZHJvIiwicm9sZSI6IkFkbWluaXN0cmFkb3IiLCJuYmYiOjE2MjUwOTk2MzQsImV4cCI6MTY1NjYzNTYzNCwiaWF0IjoxNjI1MDk5NjM0fQ.SFpPm7a5AIKjIkb0rwXIi5DxqI_pjAaNG4XtPw-_VJk"
-      );
+          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6IlBlZHJvIiwicm9sZSI6IkFkbWluaXN0cmFkb3IiLCJuYmYiOjE2MjUwOTk2MzQsImV4cCI6MTY1NjYzNTYzNCwiaWF0IjoxNjI1MDk5NjM0fQ.SFpPm7a5AIKjIkb0rwXIi5DxqI_pjAaNG4XtPw-_VJk"
+        );
       ApiService.setHeader();
-      ApiService.get("analise/perguntas").then(({ data }) => {
-        const perguntasSemRespostas = data;
-        ApiService.get(`analise?id=${analiseId}`).then(({ data }) => {
-          analise.value = data;
-
-          const perguntasComRespostas = perguntasSemRespostas.map(pergunta => {
-            const respostasPorLocalizacao = pergunta.items.map(item => {
-              const resposta = data.respostas.find(function(object) {
-                return item.itemId === object.itemId;
-              });
-              if (resposta) {
-                item.id = resposta.id;
-                item.resposta = resposta.resposta;
-                item.observacao = resposta.observacao;
-                resultado.value.push({
-                  id: resposta.id,
-                  itemId: resposta.itemId,
-                  localizacao: pergunta.localizacao,
-                  resposta: resposta.resposta,
-                  observacao: resposta.observacao
-                });
-              }
-              return item;
-            });
-
-            pergunta.items = respostasPorLocalizacao;
-            return pergunta;
-          });
-
-          perguntas.value = perguntasComRespostas;
+      //let analiseNova = {...obj1, ...obj2};
+      const isNovoCadastro = route.currentRoute.value.query.veiculoId;
+      if (isNovoCadastro) {
+        analise.value = { ...analise.value, ...route.currentRoute.value.query };
+        ApiService.get("analise/perguntas").then(({ data }) => {
+          perguntas.value = data
         });
-      });
+      } else {
+        ApiService.get("analise/perguntas").then(({ data }) => {
+          const perguntasSemRespostas = data;
+          ApiService.get(`analise?id=${analiseId}`).then(({ data }) => {
+            analise.value = data;
+
+            const perguntasComRespostas = perguntasSemRespostas.map(
+              (pergunta) => {
+                const respostasPorLocalizacao = pergunta.items.map((item) => {
+                  const resposta = data.respostas.find(function(object) {
+                    return item.itemId === object.itemId;
+                  });
+                  if (resposta) {
+                    item.id = resposta.id;
+                    item.resposta = resposta.resposta;
+                    item.observacao = resposta.observacao;
+                    resultado.value.push({
+                      id: resposta.id,
+                      itemId: resposta.itemId,
+                      localizacao: pergunta.localizacao,
+                      resposta: resposta.resposta,
+                      observacao: resposta.observacao,
+                    });
+                  }
+                  return item;
+                });
+
+                pergunta.items = respostasPorLocalizacao;
+                return pergunta;
+              }
+            );
+
+            perguntas.value = perguntasComRespostas;
+          });
+        });
+      }
     });
 
     return {
@@ -213,8 +233,8 @@ export default defineComponent({
       resultado,
       accordions,
       getNumeroRespostasPorLocalizacao,
-      enviarRespostas
+      enviarRespostas,
     };
-  }
+  },
 });
 </script>
