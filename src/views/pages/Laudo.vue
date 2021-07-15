@@ -26,11 +26,7 @@
                   }
                 "
                 class="accordion-button bg-white text-dark fs-1 text-center"
-                :class="{
-                  'bg-success':
-                    getNumeroRespostasPorLocalizacao(
-                      localizacao.localizacao
-                    ) === localizacao.items.length,
+                :class="{'bg-success':getNumeroRespostasPorLocalizacao(localizacao.localizacao) === localizacao.items.length
                 }"
                 type="button"
                 data-bs-toggle="collapse"
@@ -104,7 +100,7 @@ export default defineComponent({
 
     function getNumeroRespostasPorLocalizacao(localizacao) {
       return resultado.value.filter(function(item) {
-        return item.localizacao === localizacao;
+        return item.localizacao === localizacao || item.localizacao === localizacao.replace(" ", "");
       }).length;
     }
 

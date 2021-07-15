@@ -6,19 +6,24 @@
           Pré-Cadastro de Laudos
         </h3>
         <div className="card-toolbar">
-          <button className="btn btn-primary font-weight-bolder font-size-sm mr-3 d-flex" data-bs-toggle="modal" data-bs-target="#pryal_cliente_cadastro">
+          <button
+            className="btn btn-primary font-weight-bolder font-size-sm mr-3 d-flex"
+            data-bs-toggle="modal"
+            data-bs-target="#pryal_cliente_cadastro"
+          >
             <i class="bi bi-person-plus-fill fs-3"></i>
           </button>
         </div>
       </div>
-      <div
-        className="card-body pt-2"
-        v-for="c in clientes"
-        :key="c.id"
-      >
+      <div className="card-body pt-2" v-for="c in clientes" :key="c.id">
         <div className="d-flex flex-wrap align-items-center">
           <div className="d-flex flex-column flex-grow-1 my-lg-0 my-2 pr-3">
-            <a href="#pryal_cliente_cadastro" @click="setCliente(c)" data-bs-toggle="modal"><span class="fs-3">Cliente: {{ c.nome }}</span></a>
+            <a
+              href="#pryal_cliente_cadastro"
+              @click="setCliente(c)"
+              data-bs-toggle="modal"
+              ><span class="fs-3">{{ c.nome }}</span></a
+            >
             <template v-for="veiculo in c.veiculos" :key="veiculo.id">
               <span
                 className="d-flex align-items-center justify-content-between text-muted mb-3"
@@ -40,7 +45,6 @@
       </div>
     </div>
   </div>
-
   <ClienteCadastro :cliente="cliente" />
 </template>
 
@@ -52,21 +56,28 @@ import ClienteCadastro from "@/views/pages/widgets/ClienteCadastro.vue";
 
 export default defineComponent({
   name: "ClientesList",
-  components: {ClienteCadastro},
+  components: { ClienteCadastro },
   props: {
     clientes: Array
   },
   setup() {
     const router = useRouter();
-    const cliente = ref({nome: ""});
+    const cliente = ref<any>({});
+
     function setCliente(cli) {
-      console.log('cli', cli)
       cliente.value = cli;
-      //console.log(cliente.value)
     }
 
     function criarLaudo(cliente, veiculo) {
-      router.push({ name: "Cadastrar-laudo", query: { nome: cliente.nome, marca: veiculo.marca, modelo: veiculo.modelo, veiculoId: veiculo.id} });
+      router.push({
+        name: "Cadastrar-laudo",
+        query: {
+          nome: cliente.nome,
+          marca: veiculo.marca,
+          modelo: veiculo.modelo,
+          veiculoId: veiculo.id
+        }
+      });
     }
 
     return {
