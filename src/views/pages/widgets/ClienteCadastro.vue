@@ -9,29 +9,31 @@
       "
     >
       <div class="modal-content">
-        <Form
-          class="form w-100 fv-plugins-bootstrap5 fv-plugins-framework"
-          ref="form"
-          @submit="isCadastroNovo === true ? cadastrar : atualizar"
-          :validation-schema="validacoes"
-          v-slot="{ errors }"
-        >
-          <div class="modal-header">
-            <h5 class="modal-title">
-              Cadastro de novo cliente {{ cliente.nome }}
-            </h5>
-            <!--begin::Close-->
-            <div
-              class="btn btn-icon btn-sm btn-active-light-primary ms-2"
-              data-bs-dismiss="modal"
-              aria-label="Close"
-            >
-              <span class="svg-icon svg-icon-2x"></span>
-            </div>
-            <!--end::Close-->
+        <div class="modal-header">
+          <h5 class="modal-title">
+            Cadastro de novo cliente {{ cliente.nome }}
+          </h5>
+          <!--begin::Close-->
+          <div
+            class="btn btn-icon btn-sm btn-active-light-primary ms-2"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          >
+            <span class="svg-icon svg-icon-2x"></span>
           </div>
+          <!--end::Close-->
+        </div>
 
-          <div class="modal-body">
+        <div class="modal-body">
+          <Form
+            name="formCliente"
+            id="formCliente"
+            class="form w-100 fv-plugins-bootstrap5 fv-plugins-framework"
+            ref="form"
+            @submit="isCadastroNovo === true ? cadastrar : atualizar"
+            :validation-schema="validacoes"
+            v-slot="{ errors }"
+          >
             <div class="form-floating mb-3">
               <Field
                 v-model="cadastro.nome"
@@ -226,22 +228,24 @@
               <label for="formChassi">Chassi</label>
               <div class="invalid-feedback">{{ errors.formChassi }}</div>
             </div>
-          </div>
-
-          <div class="modal-footer">
-            <button
-              type="submit"
-              ref="closeModal"
-              class="btn btn-light"
-              data-bs-dismiss="modal"
-            >
-              Fechar
-            </button>
-            <button type="submit" class="btn btn-primary">
-              {{ isCadastroNovo === true ? "Cadastrar" : "Atualizar" }}
-            </button>
-          </div>
-        </Form>
+          </Form>
+        </div>
+        <div class="modal-footer">
+          <button
+            type="button"
+            ref="closeModal"
+            class="btn btn-light"
+            data-bs-dismiss="modal"
+          >
+            Fechar
+          </button>
+          <input
+            type="submit"
+            class="btn btn-primary"
+            form="formCliente"
+            :value="isCadastroNovo === true ? 'Cadastrar' : 'Atualizar'"
+          />
+        </div>
       </div>
     </div>
   </div>
@@ -254,13 +258,13 @@ import ApiService from "@/core/services/ApiService";
 import Swal from "sweetalert2/dist/sweetalert2.min.js";
 import { Field, Form } from "vee-validate";
 import * as Yup from "yup";
-import { pt } from 'yup-locale-pt';
+import { pt } from "yup-locale-pt";
 
 export default defineComponent({
   name: "ClienteCadastro",
   components: { Field, Form },
   props: {
-    cliente: Object
+    cliente: Object,
   },
   setup(props) {
     const cadastro = ref({});
@@ -275,9 +279,12 @@ export default defineComponent({
       formNome: Yup.string().required().label("Nome"),
       formCpf: Yup.string().required().label("CPF"),
       formEmail: Yup.string().required().email().label("Email"),
-      formDtnascimento: Yup.date().required().label("Data de nascimento").default(function () {
-        return new Date();
-      }),
+      formDtnascimento: Yup.date()
+        .required()
+        .label("Data de nascimento")
+        .default(function () {
+          return new Date();
+        }),
       formMarca: Yup.string().required().label("Marca"),
       formModelo: Yup.string().required().label("Modelo"),
       formQuilimetragem: Yup.number().required().label("Quilometragem"),
@@ -285,7 +292,7 @@ export default defineComponent({
       formAnomodelo: Yup.number().required().label("Ano modelo"),
       formPlaca: Yup.string().required().label("Placa"),
       formRenavam: Yup.string().required().label("Renavam"),
-      formChassi: Yup.string().required().label("Chassi")
+      formChassi: Yup.string().required().label("Chassi"),
     });
 
     onMounted(() => {
@@ -302,7 +309,10 @@ export default defineComponent({
       const { id: veiculoId, ...other } = cliente.veiculos[0];
       const merged = { ...cadastro.value, ...cliente, ...other };
       cadastro.value = merged;
-      cadastro.value["dataDeNascimento"] = cliente.dataDeNascimento.substring(0, 10);
+      cadastro.value["dataDeNascimento"] = cliente.dataDeNascimento.substring(
+        0,
+        10
+      );
       cadastro.value["veiculoId"] = veiculoId;
     });
 
@@ -320,7 +330,7 @@ export default defineComponent({
           confirmButtonText: "Ok, proximo!",
           customClass: {
             confirmButton: "btn fw-bold btn-light-primary",
-          }
+          },
         }).then(() => {
           closeModal.value?.click();
         });
@@ -353,8 +363,8 @@ export default defineComponent({
       validacoes,
       form,
       Form,
-      Field
+      Field,
     };
-  }
+  },
 });
 </script>

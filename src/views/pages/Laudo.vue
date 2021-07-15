@@ -1,14 +1,20 @@
 <template>
-  <main className="d-flex align-items-center justify-content-center">
-    <div className="card card-custom gutter-b example example-compact w-100">
-      <div className="card-header d-flex flex-column">
-        <h3 className="card-title mt-4">Iniciar Laudo</h3>
-        <span className="text-muted font-weight-bold font-size-sm my-1">
+  <main class="d-flex align-items-center justify-content-center">
+    <div class="card card-custom gutter-b example example-compact w-100">
+      <div class="card-header d-flex flex-column">
+        <div class="d-flex justify-content-between align-items-center">
+          <h1 class="mt-4">Iniciar Laudo</h1>
+          <button class="btn btn-sm btn-danger mt-4" v-if="!isCadastroNovo" @click="excluir">
+            Excluir
+          </button>
+        </div>
+        
+        <span class="text-muted font-weight-bold font-size-sm my-1">
           {{ analise.marca }} - {{ analise.modelo }} | {{ analise.placa }}
         </span>
-        <span className="text-muted mb-4 font-weight-bold font-size-sm">
+        <span class="text-muted mb-4 font-weight-bold font-size-sm">
           Cliente:
-          <span className="text-dark font-weight-bold">{{ analise.nome }}</span>
+          <span class="text-dark font-weight-bold">{{ analise.nome }}</span>
         </span>
       </div>
 
@@ -44,7 +50,7 @@
               aria-labelledby="headingOne"
               data-bs-parent="#accordionLaudo"
             >
-              <div className="card-body position-relative mb-10">
+              <div class="card-body position-relative mb-10">
                 <Pergunta
                   :pergunta="item"
                   v-for="(item, index) in localizacao.items"
@@ -159,6 +165,14 @@ export default defineComponent({
         });
     }
 
+    const excluir = () => {
+      ApiService.delete(
+          "/analise/excluir/" + analiseId
+        ).then(({ data }) => {
+          route.push({ name: "Dashboard" });
+        });
+    }
+
     onBeforeUpdate(() => {
       accordions.value = [];
     });
@@ -230,6 +244,7 @@ export default defineComponent({
       accordions,
       getNumeroRespostasPorLocalizacao,
       enviarRespostas,
+      excluir
     };
   },
 });
