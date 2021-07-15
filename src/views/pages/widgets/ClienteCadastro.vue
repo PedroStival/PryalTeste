@@ -11,9 +11,8 @@
       <div class="modal-content">
         <Form
           class="form w-100 fv-plugins-bootstrap5 fv-plugins-framework"
-          novalidate="novalidate"
-          id="kt_login_signup_form"
-          @submit="isCadastroNovo === true ? cadastrar() : atualizar()"
+          ref="form"
+          @submit="isCadastroNovo === true ? cadastrar : atualizar"
           :validation-schema="validacoes"
           v-slot="{ errors }"
         >
@@ -261,35 +260,24 @@ export default defineComponent({
   name: "ClienteCadastro",
   components: { Field, Form },
   props: {
-    cliente: Object,
+    cliente: Object
   },
   setup(props) {
-    const cadastroInicial = {
-      nome: "",
-      cpf: "",
-      email: "",
-      dataDeNascimento: "",
-      marca: "",
-      modelo: "",
-      quilometragem: null,
-      anoFabricacao: null,
-      anoModelo: null,
-      renavam: "",
-      chassi: "",
-    };
-
     const cadastro = ref({});
     const clienteProp = reactive<any>(props);
     const modal = ref<HTMLElement | null>(null);
     const closeModal = ref<HTMLButtonElement | null>(null);
     const isCadastroNovo = ref(true);
+    const form = ref<HTMLFormElement>();
 
     Yup.setLocale(pt);
     const validacoes = Yup.object().shape({
       formNome: Yup.string().required().label("Nome"),
       formCpf: Yup.string().required().label("CPF"),
       formEmail: Yup.string().required().email().label("Email"),
-      formDtnascimento: Yup.date().required().label("Data de nascimento"),
+      formDtnascimento: Yup.date().required().label("Data de nascimento").default(function () {
+        return new Date();
+      }),
       formMarca: Yup.string().required().label("Marca"),
       formModelo: Yup.string().required().label("Modelo"),
       formQuilimetragem: Yup.number().required().label("Quilometragem"),
@@ -302,8 +290,9 @@ export default defineComponent({
 
     onMounted(() => {
       modal.value?.addEventListener("hidden.bs.modal", () => {
-        cadastro.value = cadastroInicial;
         isCadastroNovo.value = true;
+        console.log(form.value);
+        form.value?.resetForm();
       });
     });
 
@@ -313,10 +302,7 @@ export default defineComponent({
       const { id: veiculoId, ...other } = cliente.veiculos[0];
       const merged = { ...cadastro.value, ...cliente, ...other };
       cadastro.value = merged;
-      cadastro.value["dataDeNascimento"] = cliente.dataDeNascimento.substring(
-        0,
-        10
-      );
+      cadastro.value["dataDeNascimento"] = cliente.dataDeNascimento.substring(0, 10);
       cadastro.value["veiculoId"] = veiculoId;
     });
 
@@ -334,7 +320,7 @@ export default defineComponent({
           confirmButtonText: "Ok, proximo!",
           customClass: {
             confirmButton: "btn fw-bold btn-light-primary",
-          },
+          }
         }).then(() => {
           closeModal.value?.click();
         });
@@ -365,9 +351,10 @@ export default defineComponent({
       closeModal,
       isCadastroNovo,
       validacoes,
+      form,
       Form,
-      Field,
+      Field
     };
-  },
+  }
 });
 </script>
